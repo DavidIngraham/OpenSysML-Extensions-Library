@@ -19,12 +19,14 @@ non-normative OpenSysML library; other tools resolve it when given the
 | AnalysisRecords | AnalysisRecords.sysml | Metadata a run, sweep or sample records itself with: when it ran, the tool and command, verdicts and evaluations. | Executing engine |
 | DiagramLayout | DiagramLayout.sysml | Diagram geometry: element placement, edge waypoints and the drawing extent. | Any SysML v2 tool |
 | DocumentQueries | DocumentQueries.sysml | Calc definitions (OwnedElements, Descendants, Ancestors, …) that document views evaluate to select elements. | Executing engine |
+| FailureAnalysis | FailureAnalysis.sysml | RAAML-aligned qualitative event and AND/OR gate vocabulary, DFMEA rows and disposition checks; no probabilities or full RAAML conformance claim. | Any SysML v2 tool; execution requires an engine |
+| FailureAnalysisViews | FailureAnalysisViews.sysml | Reusable fault-tree view and type-based DFMEA row query. | Executing engine |
 | IdentityMetadata | IdentityMetadata.sysml | Binds notation to repository element identity. | Any SysML v2 tool |
 | MOSA | MOSA.sysml | Modular Open Systems Approach (10 U.S.C. § 4401) vocabulary. | Any SysML v2 tool |
 | MigrationMetadata | MigrationMetadata.sysml | What a migration from another modelling language had to make up because the source left it unstated. | Any SysML v2 tool |
 | OOSEM | OOSEM.sysml | Object-Oriented Systems Engineering Method artefacts, viewpoints and product views. | Any SysML v2 tool |
 | OpenSysMLMathFunctions | OpenSysMLMathFunctions.kerml | exp, ln, log, atan2, ceiling and the Integer quotient the Kernel Function Library omits. | Executing engine |
-| OpenSysMLRenderings | OpenSysMLRenderings.sysml | Renderings and views for case and mixed diagrams. `CaseView`/`asCaseDiagram` is a shorter way to write a standard `GeneralView` filtered on case-family metaclasses; the standard route is added by [OpenSysML#886](https://github.com/Open-MBEE/OpenSysML/pull/886). `MixedView`/`asMixedDiagram` is extension-only. | Any SysML v2 tool |
+| OpenSysMLRenderings | OpenSysMLRenderings.sysml | Renderings and views for case, mixed and qualitative fault-tree diagrams. `CaseView`/`asCaseDiagram` is a shorter way to write a standard `GeneralView` filtered on case-family metaclasses; the standard route is added by [OpenSysML#886](https://github.com/Open-MBEE/OpenSysML/pull/886). `MixedView`/`asMixedDiagram` is extension-only. | Any SysML v2 tool |
 | RandomFunctions | RandomFunctions.kerml | Seeded random draws: uniform, uniformInteger, triangular, normal. | Executing engine |
 | Simulation | Simulation.sysml | How a behavior is meant to be run: run count, draw resolution, clock, Monte Carlo. | Executing engine |
 | StateActivity | StateActivity.kerml | `isActive`: a derived Boolean that is true while a state usage is in its state machine's active configuration. | Executing engine |
@@ -109,3 +111,24 @@ longer emits.
 
 Apache-2.0. Every library was authored in OpenSysML; no OMG material is
 redistributed here.
+
+## Qualitative failure analysis
+
+The failure-analysis subset follows the basic/undeveloped/house event and AND/OR
+concepts in [RAAML 1.1](https://www.omg.org/spec/RAAML/1.1). It is authored in SysML
+v2; it does not import the UML profile or claim full RAAML conformance. Boolean
+values describe one stated exposure interval, and unbound events remain unknown.
+No probability, statistical independence or temporal ordering is inferred.
+
+Use standard `CauseAndEffect::Causation` connections between event usages.
+`FailureAnalysisViews::FaultTreeView` requests gate glyphs and consistency checks
+against the executable `inputs` references. A standard filtered interconnection
+view can select these elements, but cannot request these gate symbols or the
+agreement check; this is why the rendering needs an engine extension.
+
+`FailureAnalysisViews::ReviewRows` takes a qualified `reviewName` and selects its
+owned descendant `ReviewRow` declarations, including specializations. It projects
+referenced event descriptions, so adding rows needs no per-project renderer.
+The query does not expand inherited runtime objects. The review readiness check
+requires reviewed nonempty scope and accepted disposition/evidence with a nonempty
+reference for each critical row; it is not a physical safety certification.
